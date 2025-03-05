@@ -3,7 +3,7 @@
 #include <vector>
 
 #define MIN_N 2
-#define MAX_N 20
+#define MAX_N 40
 
 using namespace std;
 
@@ -120,9 +120,20 @@ void backtrack(Grid& grid) {
     }
 }
 
+int minfactor(int n) {
+    if (n % 2 == 0) {
+        return 1;
+    }
+    for (int i = 3; i * i <= n; ++i) {
+        if (n % i == 0) {
+            return i;
+        }
+    }
+    return 1;
+}
+
 vector<vector<int>> solve(int n) {
     Grid grid = Grid(n);
-    unordered_set<int> primes = {3, 5, 7, 11, 13, 17, 19};
 
     // Оптимизации
     if (n % 2 == 0) {  // N - четное
@@ -132,28 +143,19 @@ vector<vector<int>> solve(int n) {
         grid.place(0, size, size);
         grid.place(size, size, size);
         grid.saveAsBest();
-    } else if (primes.count(n) == 1) {  // N - простое
+    }
+    int mf = minfactor(n);
+    if (mf == 1) {  // N - простое
         int lsize = (n + 1) / 2, ssize = (n - 1) / 2;
         grid.place(0, 0, lsize);
         grid.place(lsize, 0, ssize);
         grid.place(0, lsize, ssize);
     } else {  // N - нечетное составное
-        int minfactor = n;
-        for (int i = 3; i * i <= n; ++i) {
-            if (n % i == 0) {
-                minfactor = i;
-                break;
-            }
-        }
-
-        int ssize = n / minfactor, lsize = 2 * ssize;
+        int lscale = mf / 2 + 1, sscale = mf - lscale;
+        int lsize = lscale * n / mf, ssize = sscale * n / mf;
         grid.place(0, 0, lsize);
         grid.place(lsize, 0, ssize);
         grid.place(0, lsize, ssize);
-        grid.place(lsize, ssize, ssize);
-        grid.place(ssize, lsize, ssize);
-        grid.place(lsize, lsize, ssize);
-        grid.saveAsBest();
     }
 
     if (grid.isFilled()) {
