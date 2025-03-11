@@ -55,6 +55,7 @@ public:
     }
 
     void saveAsBest() {
+        cout << "Save as best" << endl;
         bestPartition = currentPartition;
         bestCount = currentPartition.size();
     }
@@ -98,6 +99,7 @@ public:
 
 void backtrack(Grid& grid) {
     if (grid.getCurrentCount() >= grid.getBestCount()) {
+        cout << "Leave" << endl;
         return;
     }
 
@@ -109,6 +111,7 @@ void backtrack(Grid& grid) {
     // Если свободных клеток нет - решение найдено
     if (x == -1) {
         grid.saveAsBest();
+        cout << "Leave" << endl;
         return;
     }
 
