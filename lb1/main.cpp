@@ -37,6 +37,8 @@ public:
     vector<vector<int>>& getBestPartition() { return bestPartition; }
 
     void place(int x, int y, int size) {
+        cout << "Place x: " << x + 1 << ", y: " << y + 1 << ", size: " << size
+             << endl;
         fill(x, y, size, currentPartition.size() + 1);
         currentPartition.push_back({x, y, size});
     }
@@ -44,15 +46,15 @@ public:
     void revert() {
         if (!currentPartition.empty()) {
             auto lastSquare = currentPartition.back();
-            fill(lastSquare[0], lastSquare[1], lastSquare[2], 0);
+            int x = lastSquare[0], y = lastSquare[1], size = lastSquare[2];
+            cout << "Revert x: " << x + 1 << ", y: " << y + 1
+                 << ", size: " << size << endl;
+            fill(x, y, size, 0);
             currentPartition.pop_back();
         }
     }
 
     void saveAsBest() {
-        print();
-        cout << endl;
-
         bestPartition = currentPartition;
         bestCount = currentPartition.size();
     }
@@ -135,8 +137,10 @@ int minfactor(int n) {
 vector<vector<int>> solve(int n) {
     Grid grid = Grid(n);
 
+    cout << "Primary fill" << endl;
     // Оптимизации
     if (n % 2 == 0) {  // N - четное
+        cout << "N is even" << endl;
         int size = n / 2;
         grid.place(0, 0, size);
         grid.place(size, 0, size);
@@ -146,11 +150,13 @@ vector<vector<int>> solve(int n) {
     }
     int mf = minfactor(n);
     if (mf == 1) {  // N - простое
+        cout << "N is prime" << endl;
         int lsize = (n + 1) / 2, ssize = (n - 1) / 2;
         grid.place(0, 0, lsize);
         grid.place(lsize, 0, ssize);
         grid.place(0, lsize, ssize);
     } else {  // N - нечетное составное
+        cout << "N is odd composite" << endl;
         int lscale = mf / 2 + 1, sscale = mf - lscale;
         int lsize = lscale * n / mf, ssize = sscale * n / mf;
         grid.place(0, 0, lsize);
@@ -162,6 +168,7 @@ vector<vector<int>> solve(int n) {
         return grid.getBestPartition();
     }
 
+    cout << "Backtracking" << endl;
     backtrack(grid);
 
     return grid.getBestPartition();
