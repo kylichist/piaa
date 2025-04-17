@@ -90,12 +90,14 @@ void getAllPaths(const vector<vector<int>>& D, const string& s1,
                  const string& s2, int insertCost, int deleteCost,
                  int replaceCost, int i, int j, string& currentPath,
                  vector<string>& allPaths) {
+    cout << "i: " << i << ", j: " << j << endl;
     if (i == 0 && j == 0) {
         cout << "Reached start, storing path: " << currentPath << endl;
         allPaths.push_back(currentPath);  // Reached start, store the path
         return;
     }
 
+    cout << "Comparing " << s1[i - 1] << " and " << s2[j - 1] << endl;
     if (i > 0 && j > 0 && s1[i - 1] == s2[j - 1] &&
         D[i][j] == D[i - 1][j - 1]) {  // Match
         cout << "Match" << endl;
@@ -211,11 +213,11 @@ int main() {
         getMatrix(s1, s2, insertCost, deleteCost, replaceCost);
 
     // Levenstein Distance (Stepik 1)
-    cout << D[M][N] << endl;
+    // cout << D[M][N] << endl;
 
     // Levenstein Path (Stepik 2)
-    string path = getPath(D, s1, s2, insertCost, deleteCost, replaceCost);
-    cout << path << endl << s1 << endl << s2 << endl;
+    // string path = getPath(D, s1, s2, insertCost, deleteCost, replaceCost);
+    // cout << path << endl << s1 << endl << s2 << endl;
 
     // All Levenstein Paths (Individual Task)
     string currentPath;
