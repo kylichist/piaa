@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <bitset>
 #include <iostream>
 #include <limits>
 #include <vector>
@@ -13,6 +14,7 @@ private:
     const vector<vector<int>>& graph;
     vector<vector<int>> dp;
     vector<vector<int>> parent;
+    vector<string> tspLog;
 
 public:
     TSP(int n, const vector<vector<int>>& graph) : n(n), graph(graph) {}
@@ -25,6 +27,13 @@ public:
         if (minCost >= INF) {
             return make_pair(-1, vector<int>{});
         }
+
+        reverse(tspLog.begin(), tspLog.end());
+        for (string& log : tspLog) {
+            cout << log << endl;
+        }
+        tspLog.clear();
+
         return make_pair(minCost, reconstructPath());
     }
 
@@ -33,19 +42,26 @@ public:
 private:
     int tsp(int mask, int pos) {
         if (mask == (1 << n) - 1) {
-            cout << "[tsp] Trying to return to start from " << pos << endl;
+            tspLog.push_back("[tsp] Trying to return to start from " +
+                             to_string(pos));
             if (graph[pos][0] == 0) {
-                cout << "[tsp] No path to start, cycle not found" << endl;
+                tspLog.push_back(
+                    "[tsp] No path to start, cycle not found, returning "
+                    "INF");
                 return INF;
             } else {
-                cout << "[tsp] Cycle found, returning to start" << endl;
+                tspLog.push_back(
+                    "[tsp] Cycle found, returning to start with cost " +
+                    to_string(graph[pos][0]));
                 return graph[pos][0];
             }
         }
 
         if (dp[mask][pos] != -1) {
-            cout << "[tsp] Using memoized value for mask=" << mask
-                 << ", pos=" << pos << " is " << dp[mask][pos] << endl;
+            tspLog.push_back("[tsp] Using memoized for mask: " +
+                             bitset<32>(mask).to_string().substr(32 - n) +
+                             ", pos: " + to_string(pos) +
+                             ", value: " + to_string(dp[mask][pos]));
             return dp[mask][pos];
         }
 
@@ -54,22 +70,25 @@ private:
             if (!(mask & (1 << city)) && graph[pos][city] > 0) {
                 int newMask = mask | (1 << city);
                 int nextCost = tsp(newMask, city);
-
                 if (nextCost != INF) {
                     int newCost = graph[pos][city] + nextCost;
-                    cout << "[tsp] From " << pos << " to " << city
-                         << " | cost: " << graph[pos][city]
-                         << ", total cost: " << newCost << endl;
+                    tspLog.push_back("  From " + to_string(pos) + " to " +
+                                     to_string(city) +
+                                     " | cost: " + to_string(graph[pos][city]) +
+                                     ", total cost: " + to_string(newCost));
                     if (newCost < ans) {
                         ans = newCost;
                         parent[mask][pos] = city;
-                        cout << "   Updating best next city from " << pos
-                             << " with mask " << mask << " to " << city
-                             << " (new cost: " << ans << ")\n";
+                        tspLog.push_back(
+                            "[tsp] Updating best next city from " +
+                            to_string(pos) + " with mask " +
+                            bitset<32>(mask).to_string().substr(32 - n) +
+                            " to " + to_string(city) +
+                            " (new cost: " + to_string(ans) + ")");
                     }
                 } else {
-                    cout << "[tsp] No path from " << pos << " to " << city
-                         << ", skipping..." << endl;
+                    tspLog.push_back("No path from " + to_string(pos) + " to " +
+                                     to_string(city) + ", skipping...");
                 }
             }
         }
@@ -166,8 +185,8 @@ int main() {
 
     TSP tsp(n, graph);
 
-    pair<int, vector<int>> exactResult = tsp.solveExact();
     cout << "Exact solution:" << endl;
+    pair<int, vector<int>> exactResult = tsp.solveExact();
     if (exactResult.first == -1) {
         cout << "no path" << endl;
     } else {
@@ -177,8 +196,8 @@ int main() {
         cout << endl;
     }
 
-    pair<int, vector<int>> approximateResult = tsp.solveApproximate(0);
     cout << "Approximate solution:" << endl;
+    pair<int, vector<int>> approximateResult = tsp.solveApproximate(0);
     if (approximateResult.first == -1) {
         cout << "no path" << endl;
     } else {
